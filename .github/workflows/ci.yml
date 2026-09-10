@@ -4,6 +4,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the notarized DMG as a GitHub Release (version from Info.plist)
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -24,7 +29,7 @@ jobs:
     needs: verify
     if: github.repository == 'yldm-tech/screen-switcher' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: macos-14
-    timeout-minutes: 15
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -61,19 +66,85 @@ jobs:
         run: |
           sh apps/macos/Tests/check-signing.sh
           codesign --verify --deep --strict -R "=certificate leaf = H\"$SIGNING_IDENTITY\"" apps/macos/dist/ScreenSwitcher.app
-      - name: Package signed app (not notarized)
-        run: ditto -c -k --sequesterRsrc --keepParent apps/macos/dist/ScreenSwitcher.app apps/macos/dist/ScreenSwitcher-signed-not-notarized.zip
+      - name: Notarize app, create DMG, and staple both tickets
+        env:
+          APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          [[ "$(uname -m)" == arm64 ]]
+          : "${APPLE_API_KEY_BASE64:?Missing notarization API key}"
+          : "${APPLE_API_KEY_ID:?Missing API key ID}"
+          : "${APPLE_API_ISSUER_ID:?Missing API issuer ID}"
+          notary_key="$RUNNER_TEMP/screen-switcher-notary.p8"
+          printf '%s' "$APPLE_API_KEY_BASE64" | base64 --decode > "$notary_key"
+          notary_auth=(--key "$notary_key" --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER_ID")
+          app="apps/macos/dist/ScreenSwitcher.app"
+          ditto -c -k --sequesterRsrc --keepParent "$app" "$RUNNER_TEMP/ScreenSwitcher-notary.zip"
+          xcrun notarytool submit "$RUNNER_TEMP/ScreenSwitcher-notary.zip" "${notary_auth[@]}" --wait --timeout 20m --output-format json > "$RUNNER_TEMP/app-notary.json"
+          jq '{id,status,message}' "$RUNNER_TEMP/app-notary.json"
+          jq -e '.status == "Accepted"' "$RUNNER_TEMP/app-notary.json"
+          xcrun stapler staple "$app"
+          xcrun stapler validate "$app"
+          spctl --assess --type execute --verbose=2 "$app"
+          mkdir "$RUNNER_TEMP/screen-switcher-dmg"
+          chmod 755 "$RUNNER_TEMP/screen-switcher-dmg"
+          ditto "$app" "$RUNNER_TEMP/screen-switcher-dmg/ScreenSwitcher.app"
+          ln -s /Applications "$RUNNER_TEMP/screen-switcher-dmg/Applications"
+          hdiutil create -volname 'Screen Switcher' -srcfolder "$RUNNER_TEMP/screen-switcher-dmg" -format UDZO -ov apps/macos/dist/ScreenSwitcher-AppleSilicon.dmg
+          dmg="apps/macos/dist/ScreenSwitcher-AppleSilicon.dmg"
+          codesign --force --timestamp --sign "$SIGNING_IDENTITY" "$dmg"
+          xcrun notarytool submit "$dmg" "${notary_auth[@]}" --wait --timeout 20m --output-format json > "$RUNNER_TEMP/dmg-notary.json"
+          jq '{id,status,message}' "$RUNNER_TEMP/dmg-notary.json"
+          jq -e '.status == "Accepted"' "$RUNNER_TEMP/dmg-notary.json"
+          xcrun stapler staple "$dmg"
+          xcrun stapler validate "$dmg"
+          codesign --verify --strict "$dmg"
+          spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg"
+          hdiutil verify "$dmg"
+          (cd apps/macos/dist && shasum -a 256 ScreenSwitcher-AppleSilicon.dmg > SHA256SUMS.txt)
       - name: Remove temporary signing material
         if: always()
         shell: bash
         run: |
+          cleanup_status=0
           if [ -f "$RUNNER_TEMP/screen-switcher-signing.keychain-db" ]; then
-            security delete-keychain "$RUNNER_TEMP/screen-switcher-signing.keychain-db"
+            security delete-keychain "$RUNNER_TEMP/screen-switcher-signing.keychain-db" || cleanup_status=$?
           fi
-          rm -f "$RUNNER_TEMP/screen-switcher-signing.p12" "$RUNNER_TEMP/DeveloperIDG2CA.cer"
+          rm -f "$RUNNER_TEMP/screen-switcher-signing.p12" "$RUNNER_TEMP/DeveloperIDG2CA.cer" "$RUNNER_TEMP/screen-switcher-notary.p8"
+          exit "$cleanup_status"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ScreenSwitcher-signed-not-notarized
-          path: apps/macos/dist/ScreenSwitcher-signed-not-notarized.zip
+          name: ScreenSwitcher-notarized-dmg
+          path: |
+            apps/macos/dist/ScreenSwitcher-AppleSilicon.dmg
+            apps/macos/dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 7
+  publish-release:
+    needs: signed-build
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Download verified DMG and publish versioned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run download "$GITHUB_RUN_ID" --name ScreenSwitcher-notarized-dmg --dir "$RUNNER_TEMP/release"
+          (cd "$RUNNER_TEMP/release" && sha256sum --check SHA256SUMS.txt)
+          version=$(python3 -c 'import plistlib; print(plistlib.load(open("apps/macos/Info.plist", "rb"))["CFBundleShortVersionString"])')
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh release create "v$version" "$RUNNER_TEMP/release/ScreenSwitcher-AppleSilicon.dmg" "$RUNNER_TEMP/release/SHA256SUMS.txt" --target "$GITHUB_SHA" --title "Screen Switcher $version" --notes 'Signed and Apple-notarized DMG for Apple Silicon Macs running macOS 13 or newer. Open the DMG and drag ScreenSwitcher into Applications. Both the app and DMG include notarization tickets. Intel Macs can build from source. Multi-display hardware coverage remains limited; see docs/TESTING.md.'
