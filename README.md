@@ -35,6 +35,19 @@ it is not a universal or notarized distribution. Run the packaged app rather
 than `swift run` for notification, icon, and login-item integration.
 Keep the app at a stable location (for example, Applications) before enabling launch at login.
 
+### Developer ID signing
+
+Use `asc certificates list --certificate-type DEVELOPER_ID_APPLICATION --fields name,serialNumber,expirationDate` to inspect your Apple certificates. A downloaded certificate alone cannot sign an app: its matching private key must also exist in the local keychain. Find usable identities with `security find-identity -v -p codesigning`, then supply the Developer ID Application SHA-1 fingerprint:
+
+```sh
+SIGNING_IDENTITY="YOUR_DEVELOPER_ID_SHA1" sh build-app.sh
+SIGNING_IDENTITY="YOUR_DEVELOPER_ID_SHA1" sh apps/macos/Tests/check-signing.sh
+```
+
+Explicit signing enables hardened runtime and a secure timestamp, requires network access, and fails on signing errors. Without `SIGNING_IDENTITY`, builds remain ad-hoc signed. This does not notarize the app or configure CI credentials. Never commit private keys or signing credentials. See the [ASC signing guide](https://docs.asccli.sh/guides/code-signing).
+
+The upstream `macOS validation` workflow also produces a signed build after validation succeeds on `main` (push or manual dispatch). It reads Actions secrets `BUILD_CERTIFICATE_BASE64` (encrypted P12, Base64), `P12_PASSWORD`, and `SIGNING_IDENTITY` (SHA-1 fingerprint), imports them into a temporary keychain, verifies the signature and uploads `ScreenSwitcher-signed-not-notarized` for seven days. PRs and forks only run unsigned/ad-hoc validation. The artifact targets the runner architecture and is not a universal or notarized release. Signing material is cleaned up even on failure; credentials are never included in the artifact.
+
 Click the menu-bar icon and use the mirror switch. While mirroring, open **Mirror Source**
 to choose a display. Language and Launch at Login are directly accessible from the main menu.
 Display IDs distinguish similarly named displays. A numeric fallback appears when macOS

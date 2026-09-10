@@ -20,3 +20,60 @@ jobs:
           node-version: '22'
       - name: Build and verify
         run: sh Scripts/verify.sh
+  signed-build:
+    needs: verify
+    if: github.repository == 'yldm-tech/screen-switcher' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Import Developer ID into temporary keychain
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${BUILD_CERTIFICATE_BASE64:?Missing certificate secret}"
+          : "${P12_PASSWORD:?Missing P12 password secret}"
+          : "${SIGNING_IDENTITY:?Missing signing identity secret}"
+          signing_keychain="$RUNNER_TEMP/screen-switcher-signing.keychain-db"
+          signing_password=$(openssl rand -hex 32)
+          echo "::add-mask::$signing_password"
+          printf '%s' "$BUILD_CERTIFICATE_BASE64" | base64 --decode > "$RUNNER_TEMP/screen-switcher-signing.p12"
+          security create-keychain -p "$signing_password" "$signing_keychain"
+          security set-keychain-settings -lut 21600 "$signing_keychain"
+          security unlock-keychain -p "$signing_password" "$signing_keychain"
+          curl --fail --silent --show-error --location --retry 3 https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer -o "$RUNNER_TEMP/DeveloperIDG2CA.cer"
+          security import "$RUNNER_TEMP/DeveloperIDG2CA.cer" -k "$signing_keychain"
+          security import "$RUNNER_TEMP/screen-switcher-signing.p12" -k "$signing_keychain" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$signing_password" "$signing_keychain" > /dev/null
+          security list-keychains -d user -s "$signing_keychain"
+          security find-identity -v -p codesigning "$signing_keychain" | grep -F "$SIGNING_IDENTITY"
+          rm "$RUNNER_TEMP/screen-switcher-signing.p12"
+      - name: Build and verify Developer ID signature
+        env:
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+        run: |
+          sh apps/macos/Tests/check-signing.sh
+          codesign --verify --deep --strict -R "=certificate leaf = H\"$SIGNING_IDENTITY\"" apps/macos/dist/ScreenSwitcher.app
+      - name: Package signed app (not notarized)
+        run: ditto -c -k --sequesterRsrc --keepParent apps/macos/dist/ScreenSwitcher.app apps/macos/dist/ScreenSwitcher-signed-not-notarized.zip
+      - name: Remove temporary signing material
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/screen-switcher-signing.keychain-db" ]; then
+            security delete-keychain "$RUNNER_TEMP/screen-switcher-signing.keychain-db"
+          fi
+          rm -f "$RUNNER_TEMP/screen-switcher-signing.p12" "$RUNNER_TEMP/DeveloperIDG2CA.cer"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ScreenSwitcher-signed-not-notarized
+          path: apps/macos/dist/ScreenSwitcher-signed-not-notarized.zip
+          if-no-files-found: error
+          retention-days: 7

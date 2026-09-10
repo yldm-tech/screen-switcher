@@ -29,6 +29,19 @@ open apps/macos/dist/ScreenSwitcher.app
 产物使用临时签名，适用于当前构建机器架构，并非通用或公证发行版。请运行打包的 App，
 避免通过 `swift run` 验证通知、图标和登录启动集成。启用登录启动前，请将 App 放到固定位置。
 
+### Developer ID 签名
+
+用 `asc certificates list --certificate-type DEVELOPER_ID_APPLICATION --fields name,serialNumber,expirationDate` 查询 Apple 证书。下载证书不等于拥有签名能力，钥匙串还必须有对应私钥。用 `security find-identity -v -p codesigning` 查看可用身份，然后传入 Developer ID Application 的 SHA-1 指纹：
+
+```sh
+SIGNING_IDENTITY="YOUR_DEVELOPER_ID_SHA1" sh build-app.sh
+SIGNING_IDENTITY="YOUR_DEVELOPER_ID_SHA1" sh apps/macos/Tests/check-signing.sh
+```
+
+指定身份后会启用强化运行时和安全时间戳，需要联网；签名失败会中止，不会退回临时签名。不设置 `SIGNING_IDENTITY` 时仍使用临时签名。这不包含公证或 CI 凭据配置。不要提交私钥或签名凭据。参考 [ASC 签名文档](https://docs.asccli.sh/guides/code-signing)。
+
+主仓库的 `macOS validation` 工作流在 `main` 推送或手动触发且验证通过后，会读取 Actions Secrets：`BUILD_CERTIFICATE_BASE64`（加密 P12 的 Base64）、`P12_PASSWORD` 和 `SIGNING_IDENTITY`（SHA-1 指纹），导入临时钥匙串、验证签名并上传 `ScreenSwitcher-signed-not-notarized` 构建产物，保留七天。PR 和 Fork 仅运行普通临时签名检查。产物针对运行器架构，并非通用或公证发行版。即使任务失败也会清理签名材料，产物不包含凭据。
+
 开启镜像后，通过“镜像主屏”选择来源。无法取得名称时显示屏幕编号。
 主屏选择反映当前会话，不保存为布局预设。
 
