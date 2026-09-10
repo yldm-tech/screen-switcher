@@ -1,7 +1,6 @@
 # Website design
 
-The page introduces Screen Switcher to Mac users and helps them build the current
-source release. It must not imply that a downloadable notarized release exists.
+The page introduces Screen Switcher to Mac users, links to the published signed and notarized Apple Silicon DMG, and retains source-build instructions for contributors and Intel users. Download claims must remain consistent with the actual GitHub Release assets.
 
 ## Direction
 

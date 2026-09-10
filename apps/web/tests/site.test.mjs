@@ -7,7 +7,8 @@ test('site identifies the domain and honest source build instructions', async ()
   const commands = html.match(/<code id="commands"[^>]*>([\s\S]*?)<\/code>/)[1].replace(/<[^>]+>/g, '');
   assert.equal(commands, 'git clone https://github.com/yldm-tech/screen-switcher.git\ncd screen-switcher\nsh build-app.sh\nopen apps/macos/dist/ScreenSwitcher.app');
   assert.match(html, /class="token-command"/);
-  assert.match(html, /not a notarized binary release/);
+  assert.match(html, /href="https:\/\/github.com\/yldm-tech\/screen-switcher\/releases\/latest\/download\/ScreenSwitcher-AppleSilicon.dmg"/);
+  assert.match(html, /Apple-notarized DMG/);
   assert.match(html, /role="switch" aria-checked="false"/);
   assert.doesNotMatch(html, /<br\b/i, 'Text must wrap naturally, not use forced line breaks');
   assert.match(html, /class="ambient" aria-hidden="true"/);

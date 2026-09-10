@@ -5,8 +5,11 @@
 A native macOS menu-bar utility for switching between mirrored and extended displays.
 Built with Swift and AppKit, without third-party dependencies.
 
-**Early-stage project:** build and resource checks are automated; full physical-display
-and UI validation is incomplete. There are no notarized binary releases yet.
+**Early-stage project:** build and resource checks are automated; full physical-display and UI validation is incomplete.
+
+## Download
+
+[Download the signed and Apple-notarized DMG](https://github.com/yldm-tech/screen-switcher/releases/latest/download/ScreenSwitcher-AppleSilicon.dmg) for Apple Silicon Macs running macOS 13+. Open the DMG and drag ScreenSwitcher into Applications. Both the app and DMG include notarization tickets. The [release page](https://github.com/yldm-tech/screen-switcher/releases/latest) includes SHA-256 checksums. Intel users can build from source below.
 
 ## Features
 
@@ -46,7 +49,9 @@ SIGNING_IDENTITY="YOUR_DEVELOPER_ID_SHA1" sh apps/macos/Tests/check-signing.sh
 
 Explicit signing enables hardened runtime and a secure timestamp, requires network access, and fails on signing errors. Without `SIGNING_IDENTITY`, builds remain ad-hoc signed. This does not notarize the app or configure CI credentials. Never commit private keys or signing credentials. See the [ASC signing guide](https://docs.asccli.sh/guides/code-signing).
 
-The upstream `macOS validation` workflow also produces a signed build after validation succeeds on `main` (push or manual dispatch). It reads Actions secrets `BUILD_CERTIFICATE_BASE64` (encrypted P12, Base64), `P12_PASSWORD`, and `SIGNING_IDENTITY` (SHA-1 fingerprint), imports them into a temporary keychain, verifies the signature and uploads `ScreenSwitcher-signed-not-notarized` for seven days. PRs and forks only run unsigned/ad-hoc validation. The artifact targets the runner architecture and is not a universal or notarized release. Signing material is cleaned up even on failure; credentials are never included in the artifact.
+The upstream `macOS validation` workflow builds and notarizes an Apple Silicon DMG after validation succeeds on `main`. It reads signing secrets `BUILD_CERTIFICATE_BASE64` (encrypted P12, Base64), `P12_PASSWORD`, and `SIGNING_IDENTITY` (SHA-1 fingerprint), plus notarization secrets `APPLE_API_KEY_BASE64`, `APPLE_API_KEY_ID`, and `APPLE_API_ISSUER_ID`. It staples both app and DMG tickets, checks Gatekeeper and uploads `ScreenSwitcher-notarized-dmg` with SHA-256 checksums for seven days. PRs and forks only run unsigned/ad-hoc validation. Signing material is cleaned up even on failure; credentials are never included in the artifact.
+
+To publish a release, update `CFBundleShortVersionString` in `apps/macos/Info.plist` to an unused `major.minor.patch` version, push to `main`, then manually run the workflow with `publish_release=true`. Only a successfully notarized DMG is published. Existing version tags/releases are not overwritten. If notarization times out, Apple may still be processing the submission: inspect Notary history before submitting again. P12 files must be tested with macOS `security import`, not only OpenSSL; incompatible PKCS#12 algorithms can produce a misleading “wrong password” error.
 
 Click the menu-bar icon and use the mirror switch. While mirroring, open **Mirror Source**
 to choose a display. Language and Launch at Login are directly accessible from the main menu.
