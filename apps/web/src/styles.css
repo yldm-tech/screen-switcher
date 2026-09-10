@@ -25,3 +25,6 @@ html[data-motion="paused"] .ambient>*,html[data-background-suspended] .ambient>*
 #motion-toggle{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;border-radius:6px;padding:7px 10px;max-width:100%}
 @media(max-width:650px){.ambient-glow{width:640px}.glow-blue{left:-460px;top:-230px}.glow-cyan{right:-480px;top:25%}.ambient-screen{display:none}footer{row-gap:18px}}
 @media(prefers-reduced-motion:reduce){.ambient>*{animation:none!important;will-change:auto}#motion-toggle{display:none}}
+.terminal .token-command{color:#80e8df;font-weight:650}
+.terminal .token-subcommand{color:#c4b5fd}
+.terminal .token-path{color:#f3d69b}
