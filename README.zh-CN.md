@@ -23,7 +23,7 @@
 git clone https://github.com/yldm-tech/screen-switcher.git
 cd screen-switcher
 sh build-app.sh
-open dist/ScreenSwitcher.app
+open apps/macos/dist/ScreenSwitcher.app
 ```
 
 产物使用临时签名，适用于当前构建机器架构，并非通用或公证发行版。请运行打包的 App，
@@ -55,3 +55,8 @@ sh Scripts/verify.sh
 通知权限可选。欢迎提交 Issue 或 Pull Request；请勿上传包含个人信息的日志或截图。
 
 代码与图标绘图源文件均采用 [MIT 许可证](LICENSE)。
+
+## Monorepo
+
+原生 App 在 `apps/macos`，官网在 `apps/web`。官网使用 Node.js 22+：执行 `npm ci` 后运行 `npm run dev`。
+`npm run build:web` 构建静态官网。域名与部署说明见 [DEPLOYMENT.md](docs/DEPLOYMENT.md)。

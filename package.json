@@ -1,0 +1,11 @@
+{
+  "name": "screen-switcher",
+  "private": true,
+  "workspaces": ["apps/web"],
+  "scripts": {
+    "dev": "npm run dev --workspace @screen-switcher/web",
+    "build:web": "npm run build --workspace @screen-switcher/web",
+    "check:web": "npm run check --workspace @screen-switcher/web"
+  },
+  "engines": { "node": ">=22" }
+}

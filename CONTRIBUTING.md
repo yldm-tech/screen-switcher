@@ -4,7 +4,7 @@ Bug reports, translations, and focused pull requests are welcome.
 
 ## Development
 
-Use macOS 13 or later with Xcode or Apple Command Line Tools (Swift 5.9+).
+Use Node.js 22+ for website checks, and macOS 13 or later with Xcode or Apple Command Line Tools (Swift 5.9+).
 Run `sh Scripts/verify.sh` before submitting a change. It builds the app and
 runs standalone checks; it does not change display settings.
 `swift test` is not the test entry point for this executable-only package.
@@ -15,9 +15,9 @@ from a build or a simulated test. Use [the manual checklist](docs/TESTING.md).
 
 ## Translations
 
-Edit `Sources/ScreenSwitcher/Resources/<language>.lproj/Localizable.strings`.
+Edit `apps/macos/Sources/ScreenSwitcher/Resources/<language>.lproj/Localizable.strings`.
 Use stable semantic keys and preserve format placeholders. When adding a key,
-update every language and `Tests/check-localizations.swift`.
+update every language and `apps/macos/Tests/check-localizations.swift`.
 When adding a language, also update `Localization.languages`, its native name,
 and the language list in the validation script and documentation.
 Keep app-owned UI text out of Swift source, except product and native language names.

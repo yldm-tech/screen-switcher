@@ -15,7 +15,7 @@ or real menu interaction. CI does not publish a release or launch the app.
 
 ## Manual hardware checklist
 
-Run a build from `dist/ScreenSwitcher.app`. Save your work before changing display
+Run a build from `apps/macos/dist/ScreenSwitcher.app`. Save your work before changing display
 configuration. A brief black screen during mode changes can be normal.
 
 - [ ] One display: mirror switch disabled; status says single display.

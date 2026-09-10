@@ -27,7 +27,7 @@ Mirroring requires at least two online displays.
 git clone https://github.com/yldm-tech/screen-switcher.git
 cd screen-switcher
 sh build-app.sh
-open dist/ScreenSwitcher.app
+open apps/macos/dist/ScreenSwitcher.app
 ```
 
 The build creates an ad-hoc signed app for the current machine's architecture;
@@ -71,3 +71,13 @@ Notification permission is optional. See [SECURITY.md](SECURITY.md).
 ## License
 
 [MIT](LICENSE), including the native icon drawing source.
+
+## Monorepo
+
+- `apps/macos`: native Swift application, resources, tests, and icon generator.
+- `apps/web`: dependency-free static website for `screenswitcher.yldm.tech`.
+- Root scripts retain the app build entry point and run combined checks.
+
+Website development requires Node.js 22+: `npm ci`, then `npm run dev`.
+Run `npm run check:web` and `npm run build:web` for the site alone.
+See [deployment](docs/DEPLOYMENT.md) for GitHub Pages and DNS setup.
