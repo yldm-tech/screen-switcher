@@ -21,8 +21,8 @@ Pull requests run checks but do not deploy.
 
 ## Custom domain
 
-Target: `screenswitcher.yldm.tech`.
-The repository is configured for this custom domain with HTTPS enforcement.
+Target: `screenswitcher.yldm.ai`.
+Keep the existing Pages domain active until the new DNS record resolves, then switch the custom domain and verify HTTPS enforcement.
 For GitHub Pages, set this DNS record at the DNS provider:
 
 | Type | Name | Target |
@@ -32,7 +32,7 @@ For GitHub Pages, set this DNS record at the DNS provider:
 Before configuring the Pages custom domain, verify ownership of the domain in the
 organization's Pages settings if required. Do not overwrite an existing DNS record
 without checking its current use. Once the record resolves, set the repository's
-Pages custom domain to `screenswitcher.yldm.tech`, wait for certificate provisioning,
+Pages custom domain to `screenswitcher.yldm.ai`, wait for certificate provisioning,
 and enable HTTPS enforcement.
 
 Canonical URL, sitemap, and robots.txt target the custom domain. The site remains

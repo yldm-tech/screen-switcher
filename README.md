@@ -93,7 +93,7 @@ Notification permission is optional. See [SECURITY.md](SECURITY.md).
 ## Monorepo
 
 - `apps/macos`: native Swift application, resources, tests, and icon generator.
-- `apps/web`: dependency-free static website for `screenswitcher.yldm.tech`.
+- `apps/web`: dependency-free static website for `screenswitcher.yldm.ai`.
 - Root scripts retain the app build entry point and run combined checks.
 
 Website development requires Node.js 22+: `npm ci`, then `npm run dev`.

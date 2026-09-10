@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 test('site identifies the domain and honest source build instructions', async () => {
   const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
-  assert.match(html, /https:\/\/screenswitcher.yldm.tech\//);
+  assert.match(html, /https:\/\/screenswitcher\.yldm\.ai\//);
   const commands = html.match(/<code id="commands"[^>]*>([\s\S]*?)<\/code>/)[1].replace(/<[^>]+>/g, '');
   assert.equal(commands, 'git clone https://github.com/yldm-tech/screen-switcher.git\ncd screen-switcher\nsh build-app.sh\nopen apps/macos/dist/ScreenSwitcher.app');
   assert.match(html, /class="token-command"/);
