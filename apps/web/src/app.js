@@ -1,17 +1,63 @@
+import { resolveLanguage, readSelection, saveSelection, loadMessages, translatePage } from './i18n.js';
+
 const toggle = document.querySelector('#mirror-toggle');
-toggle.addEventListener('click', () => {
-  const mirrored = toggle.getAttribute('aria-checked') !== 'true';
-  toggle.setAttribute('aria-checked', String(mirrored));
+const select = document.querySelector('#language');
+const status = document.querySelector('#copy-status');
+let messages = {};
+let fallback = {};
+let copyState = '';
+let generation = 0;
+let activeSelection = 'system';
+let activeLanguage = 'en';
+
+function updateDemo() {
+  const mirrored = toggle.getAttribute('aria-checked') === 'true';
   document.querySelector('#screens').classList.toggle('mirrored', mirrored);
-  document.querySelector('#mode-description').textContent = mirrored
-    ? 'Same content. Ready to share.' : 'More space. Two independent screens.';
+  const key = mirrored ? 'demo.on' : 'demo.off';
+  const description = document.querySelector('#mode-description');
+  if (messages[key] || fallback[key]) description.textContent = messages[key] ?? fallback[key];
+  if (copyState) status.textContent = messages[copyState] ?? fallback[copyState] ?? '';
+}
+
+async function changeLanguage(selection, persist = false) {
+  const request = ++generation;
+  const language = resolveLanguage(selection, navigator.languages);
+  try {
+    const [english, translated] = await Promise.all([loadMessages('en'), loadMessages(language)]);
+    if (request !== generation) return;
+    fallback = english;
+    messages = translated;
+    activeSelection = selection;
+    activeLanguage = language;
+    translatePage(messages, fallback);
+    document.documentElement.lang = language;
+    select.value = selection;
+    if (persist) saveSelection(selection);
+    updateDemo();
+  } catch {
+    if (request !== generation) return;
+    // Keep the last working language and the static English page on first load.
+    select.value = activeSelection;
+    document.documentElement.lang = activeLanguage;
+  }
+}
+
+select.value = readSelection();
+select.addEventListener('change', () => changeLanguage(select.value, true));
+window.addEventListener('languagechange', () => {
+  if (select.value === 'system') changeLanguage('system');
+});
+toggle.addEventListener('click', () => {
+  toggle.setAttribute('aria-checked', String(toggle.getAttribute('aria-checked') !== 'true'));
+  updateDemo();
 });
 document.querySelector('#copy').addEventListener('click', async () => {
-  const status = document.querySelector('#copy-status');
   try {
     await navigator.clipboard.writeText(document.querySelector('#commands').textContent);
-    status.textContent = 'Commands copied.';
+    copyState = 'copy.success';
   } catch {
-    status.textContent = 'Select the commands above and copy them manually.';
+    copyState = 'copy.error';
   }
+  updateDemo();
 });
+changeLanguage(select.value);

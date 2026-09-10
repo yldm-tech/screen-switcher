@@ -22,6 +22,12 @@ When adding a language, also update `Localization.languages`, its native name,
 and the language list in the validation script and documentation.
 Keep app-owned UI text out of Swift source, except product and native language names.
 
+Website translations live in `apps/web/src/locales/<language>.json`. Keep all keys
+in every dictionary and use `data-i18n` attributes for page text. Run
+`npm run check:web` to validate coverage. The optional
+`apps/web/tests/i18n_browser.py` test uses Python Playwright with Chrome and
+the local development server on port 4321 to verify actual language changes.
+
 ## Pull requests
 
 - Explain what changed and why; link the issue if applicable.

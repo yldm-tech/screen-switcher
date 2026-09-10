@@ -7,6 +7,7 @@ test('site identifies the domain and honest source build instructions', async ()
   assert.match(html, /open apps\/macos\/dist\/ScreenSwitcher.app/);
   assert.match(html, /not a notarized binary release/);
   assert.match(html, /role="switch" aria-checked="false"/);
+  assert.doesNotMatch(html, /<br\b/i, 'Text must wrap naturally, not use forced line breaks');
   const ids = [...html.matchAll(/id="([^"]+)"/g)].map(match => match[1]);
   assert.equal(ids.length, new Set(ids).size);
   for (const match of html.matchAll(/href="#([^"]+)"/g)) assert.ok(ids.includes(match[1]));
