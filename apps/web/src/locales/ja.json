@@ -1,4 +1,6 @@
 {
+  "motion.pause": "背景アニメーションを停止",
+  "motion.resume": "背景アニメーションを再開",
   "page.title": "Screen Switcher — 2つの画面、1つのスイッチ。",
   "page.description": "軽量でオープンソースの macOS メニューバーアプリ。ミラーリングと拡張表示を切り替え、ミラーリング元を選べます。",
   "skip": "本文へ移動",

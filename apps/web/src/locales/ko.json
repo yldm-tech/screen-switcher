@@ -1,4 +1,6 @@
 {
+  "motion.pause": "배경 애니메이션 일시 정지",
+  "motion.resume": "배경 애니메이션 재개",
   "page.title": "Screen Switcher — 두 화면, 하나의 스위치.",
   "page.description": "가벼운 오픈 소스 macOS 메뉴 막대 앱. 미러링과 확장 모드를 전환하고 원본 화면을 선택하세요.",
   "skip": "본문으로 건너뛰기",

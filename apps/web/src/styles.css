@@ -8,3 +8,20 @@
 @media(max-width:900px){.nav{gap:20px}nav{gap:15px}.language-control select{max-width:145px}.studio-top{gap:12px}.studio-top span{min-width:0}.terminal-head{gap:12px}.terminal button{flex-shrink:0}}
 @media(max-width:650px){.nav{height:auto;min-height:112px;flex-wrap:wrap;padding-top:18px;padding-bottom:14px;gap:16px}nav{width:100%;justify-content:space-between;gap:10px;font-size:11px}nav a:first-child{display:inline}.language-control select{max-width:135px}.actions .primary{max-width:100%}.fine{line-height:1.8}}
 @media(max-width:650px){.nav{position:relative}nav .language-control{position:absolute;right:28px;top:18px}.language-control select{width:104px;max-width:104px}.nav nav{justify-content:flex-start;gap:24px}nav a{white-space:nowrap}}
+nav{align-items:center}
+/* The atmosphere stays behind content and never intercepts controls. */
+body{isolation:isolate}
+.ambient{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict}
+.ambient-glow{position:absolute;width:min(78vw,1050px);aspect-ratio:1;border-radius:50%;will-change:transform}
+.glow-blue{left:-25%;top:-38%;background:radial-gradient(ellipse,#7094ff38 0%,#8ba8ff1c 35%,transparent 68%);animation:blue-drift 24s ease-in-out infinite alternate}
+.glow-cyan{right:-28%;top:10%;background:radial-gradient(ellipse,#65dedd45 0%,#95e6f024 35%,transparent 70%);animation:cyan-drift 28s ease-in-out infinite alternate}
+.ambient-screen{position:absolute;width:380px;height:250px;border:1px solid #557df013;border-radius:28px;background:linear-gradient(125deg,#ffffff12,transparent);box-shadow:0 0 70px #749cff08;will-change:transform}
+.screen-one{left:-220px;top:50%;animation:screen-drift 30s ease-in-out infinite alternate}
+.screen-two{right:-230px;top:22%;animation:screen-drift 34s ease-in-out -12s infinite alternate-reverse}
+@keyframes blue-drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(18vw,14vh,0) scale(1.12)}}
+@keyframes cyan-drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-17vw,-8vh,0) scale(1.1)}}
+@keyframes screen-drift{from{transform:translate3d(0,0,0) rotate(-16deg)}to{transform:translate3d(60px,-50px,0) rotate(-6deg)}}
+html[data-motion="paused"] .ambient>*,html[data-background-suspended] .ambient>*{animation-play-state:paused}
+#motion-toggle{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;border-radius:6px;padding:7px 10px;max-width:100%}
+@media(max-width:650px){.ambient-glow{width:640px}.glow-blue{left:-460px;top:-230px}.glow-cyan{right:-480px;top:25%}.ambient-screen{display:none}footer{row-gap:18px}}
+@media(prefers-reduced-motion:reduce){.ambient>*{animation:none!important;will-change:auto}#motion-toggle{display:none}}

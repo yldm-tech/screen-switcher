@@ -1,4 +1,6 @@
 {
+  "motion.pause": "Pausar animación de fondo",
+  "motion.resume": "Reanudar animación de fondo",
   "page.title": "Screen Switcher — Dos pantallas. Un solo interruptor.",
   "page.description": "Una pequeña app de código abierto para la barra de menús de macOS. Alterna entre duplicar y ampliar pantallas y elige la pantalla de origen.",
   "skip": "Saltar al contenido",

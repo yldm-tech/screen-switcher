@@ -1,4 +1,6 @@
 {
+  "motion.pause": "Pause background animation",
+  "motion.resume": "Resume background animation",
   "page.title": "Screen Switcher — Two screens. One simple switch.",
   "page.description": "A small, open-source macOS menu-bar app. Switch between mirrored and extended displays, choose your mirror source, and get back to work.",
   "skip": "Skip to content",

@@ -22,6 +22,7 @@ Pull requests run checks but do not deploy.
 ## Custom domain
 
 Target: `screenswitcher.yldm.tech`.
+The repository is configured for this custom domain with HTTPS enforcement.
 For GitHub Pages, set this DNS record at the DNS provider:
 
 | Type | Name | Target |

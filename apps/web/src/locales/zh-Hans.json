@@ -1,4 +1,6 @@
 {
+  "motion.pause": "暂停背景动画",
+  "motion.resume": "继续背景动画",
   "page.title": "Screen Switcher — 两块屏幕，一个开关。",
   "page.description": "轻巧开源的 macOS 菜单栏工具。切换镜像与扩展，选择镜像主屏，然后继续工作。",
   "skip": "跳到正文",

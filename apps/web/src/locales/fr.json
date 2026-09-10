@@ -1,4 +1,6 @@
 {
+  "motion.pause": "Mettre l’animation en pause",
+  "motion.resume": "Reprendre l’animation",
   "page.title": "Screen Switcher — Deux écrans. Un seul interrupteur.",
   "page.description": "Une petite app macOS libre dans la barre des menus. Passez de la recopie au bureau étendu et choisissez l’écran source.",
   "skip": "Aller au contenu",

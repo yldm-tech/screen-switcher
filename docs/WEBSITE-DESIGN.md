@@ -49,3 +49,12 @@ the manual preference. Blocked storage does not prevent in-page switching.
 English HTML remains readable without JavaScript. If a translation request fails,
 the previous working language is retained. Canonical URL remains the same; this
 single-page implementation does not publish separate indexed language URLs.
+
+## Background motion
+
+Slow blue/cyan radial light fields and two faint screen outlines connect the
+background to the display-switching theme. Only decorative layers animate their
+transforms; content does not move. The layers cannot intercept pointer input and
+are hidden from assistive technology. A localized footer button pauses/resumes
+animation, background tabs pause it, and reduced-motion preferences disable it.
+On narrow screens the outline layers are omitted to keep the composition quiet.

@@ -16,6 +16,7 @@
   <script src="./app.js" type="module"></script>
 </head>
 <body>
+  <div class="ambient" aria-hidden="true"><div class="ambient-glow glow-blue"></div><div class="ambient-glow glow-cyan"></div><div class="ambient-screen screen-one"></div><div class="ambient-screen screen-two"></div></div>
   <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
   <header class="nav wrap">
     <a class="brand" href="./"><img src="./icon.svg" alt="" width="32" height="32">Screen Switcher</a>
@@ -57,6 +58,6 @@ open apps/macos/dist/ScreenSwitcher.app</code></pre><p data-i18n="install.requir
     </section>
     <section class="notes wrap"><h2 data-i18n="faq.title">A few things to know.</h2><div><details><summary data-i18n="faq.download.question">Can I download a ready-made app?</summary><p data-i18n="faq.download.answer">Not yet. The project currently provides source code and local builds, not a notarized binary release. The commands above build an ad-hoc signed app for your Mac.</p></details><details><summary data-i18n="faq.scaling.question">Will it fix display scaling?</summary><p data-i18n="faq.scaling.answer">It selects mirror or extend mode and the mirror source. macOS and your hardware still determine supported resolutions. Different aspect ratios can produce scaling or black bars.</p></details><details><summary data-i18n="faq.privacy.question">What about privacy and compatibility?</summary><p data-i18n="faq.privacy.answer">No analytics, screen capture, or application network requests are implemented. Full multi-display hardware and UI testing is still in progress. Review the testing checklist before relying on it in a presentation.</p><p><a data-i18n="faq.checklist" href="https://github.com/yldm-tech/screen-switcher/blob/main/docs/TESTING.md">Read the testing checklist ↗</a></p></details></div></section>
   </main>
-  <footer class="wrap"><a class="brand" href="./"><img src="./icon.svg" alt="" width="24" height="24">Screen Switcher</a><span><span data-i18n="footer.by">A small tool by</span> <a href="https://github.com/yldm-tech">YLDM Tech</a>.</span><a href="https://github.com/yldm-tech/screen-switcher/blob/main/LICENSE" data-i18n="footer.license">MIT licensed ↗</a></footer>
+  <footer class="wrap"><a class="brand" href="./"><img src="./icon.svg" alt="" width="24" height="24">Screen Switcher</a><span><span data-i18n="footer.by">A small tool by</span> <a href="https://github.com/yldm-tech">YLDM Tech</a>.</span><button id="motion-toggle" type="button" aria-pressed="false" data-i18n="motion.pause">Pause background animation</button><a href="https://github.com/yldm-tech/screen-switcher/blob/main/LICENSE" data-i18n="footer.license">MIT licensed ↗</a></footer>
 </body>
 </html>

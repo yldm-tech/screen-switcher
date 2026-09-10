@@ -1,4 +1,6 @@
 {
+  "motion.pause": "Hintergrundanimation pausieren",
+  "motion.resume": "Hintergrundanimation fortsetzen",
   "page.title": "Screen Switcher — Zwei Bildschirme. Ein Schalter.",
   "page.description": "Eine kleine Open-Source-App für die macOS-Menüleiste. Zwischen Spiegeln und Erweitern wechseln und den Quellbildschirm wählen.",
   "skip": "Zum Inhalt springen",

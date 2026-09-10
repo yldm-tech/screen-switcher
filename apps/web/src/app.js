@@ -61,3 +61,16 @@ document.querySelector('#copy').addEventListener('click', async () => {
   updateDemo();
 });
 changeLanguage(select.value);
+
+const motion = document.querySelector('#motion-toggle');
+motion.addEventListener('click', () => {
+  const paused = motion.getAttribute('aria-pressed') !== 'true';
+  motion.setAttribute('aria-pressed', String(paused));
+  document.documentElement.dataset.motion = paused ? 'paused' : 'running';
+  const key = paused ? 'motion.resume' : 'motion.pause';
+  motion.dataset.i18n = key;
+  motion.textContent = messages[key] ?? fallback[key] ?? motion.textContent;
+});
+document.addEventListener('visibilitychange', () => {
+  document.documentElement.toggleAttribute('data-background-suspended', document.hidden);
+});
