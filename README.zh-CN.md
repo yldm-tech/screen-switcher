@@ -1,5 +1,7 @@
 # Screen Switcher
 
+[![X](https://img.shields.io/badge/X-%40suzukaze__haduki-000000?logo=x&logoColor=white)](https://x.com/suzukaze_haduki) [![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/houko)
+
 [English](README.md) · [贡献指南](CONTRIBUTING.md) · [MIT 许可证](LICENSE)
 
 轻量的 macOS 原生菜单栏工具，用于切换镜像与扩展显示。Swift / AppKit 实现，无第三方依赖。
